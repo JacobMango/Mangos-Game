@@ -51,10 +51,11 @@ public class Game extends Canvas implements Runnable {
 	 * game threads and graphics.
 	 */
 	private Thread thread;
-	private JFrame frame;
+	public JFrame frame;
 	private Keyboard key;
 	public Level level;
 	private Mob mob;
+	private Launcher launcher;
 	private Player player;
 	private MultiPlayer multiplayer;
 	private Menus menu;
@@ -76,7 +77,7 @@ public class Game extends Canvas implements Runnable {
 	public int fps = 0;
 	public int ups = 0;
 
-	public static String TITLE = "2D Game";
+	public static String TITLE = "Mangos-Game";
 
 	private Screen screen;
 
@@ -99,6 +100,19 @@ public class Game extends Canvas implements Runnable {
 	/**
 	 * Constructor
 	 */
+	
+	public Game(Launcher l) {
+		this.launcher = l;
+		frame.setResizable(false);
+		frame.setTitle(TITLE);
+		frame.add(this);
+		frame.pack();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
+		start();
+	}
+	
 	public Game() {
 		Dimension size = new Dimension(width * scale, height * scale);
 		this.setPreferredSize(size);
@@ -156,7 +170,6 @@ public class Game extends Canvas implements Runnable {
 		double delta = 0;
 		int frames = 0;
 		int updates = 0;
-		int slowupdates = 0;
 		while (running == true) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
@@ -165,10 +178,6 @@ public class Game extends Canvas implements Runnable {
 				update();
 				updates++;
 				delta--;
-			}
-			while (delta >= 100) {
-				slowUpdate();
-				slowupdates++;
 			}
 			render();
 			frames++;
@@ -179,14 +188,9 @@ public class Game extends Canvas implements Runnable {
 				ups = updates;
 				frames = 0;
 				updates = 0;
-				slowupdates = 0;
 			}
 		}
 		stop();
-	}
-
-	private void slowUpdate() {
-
 	}
 
 	/**
@@ -381,21 +385,4 @@ public class Game extends Canvas implements Runnable {
 		bs.show();
 	}
 
-	/**
-	 * Main method
-	 * 
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		Game game = new Game();
-		game.frame.setResizable(false);
-		game.frame.setTitle(Game.TITLE);
-		game.frame.add(game);
-		game.frame.pack();
-		game.frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		game.frame.setLocationRelativeTo(null);
-		game.frame.setVisible(true);
-
-		game.start();
-	}
 }
