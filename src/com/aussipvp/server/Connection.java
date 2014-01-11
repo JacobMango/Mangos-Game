@@ -23,7 +23,7 @@ public class Connection {
 	private Thread send;
 	private Game game;
 
-	public Connection() {
+	/*public Connection() {
 		address = "localhost";
 		port = 9999;
 		openConnection(address + ":" + port);
@@ -88,5 +88,5 @@ public class Connection {
 
 	private void handleMove(Packet02Move packet) {
 		game.level.movePlayer(packet.getUsername(), packet.getX(), packet.getY(), packet.isMoving(), packet.getMovingDir());
-	}
+	}*/
 }

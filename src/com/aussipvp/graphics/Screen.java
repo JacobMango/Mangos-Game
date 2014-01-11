@@ -2,6 +2,9 @@ package com.aussipvp.graphics;
 
 import java.util.Random;
 
+import com.aussipvp.entity.mob.Chaser;
+import com.aussipvp.entity.mob.Mob;
+import com.aussipvp.entity.mob.Star;
 import com.aussipvp.entity.projectile.Projectile;
 import com.aussipvp.level.tile.Tile;
 
@@ -77,6 +80,17 @@ public class Screen {
 		}
 
 	}
+	
+	public void renderFont(SpriteSheet letter, int xp, int yp) {
+		for (int y = 0; y < letter.HEIGHT; y++) {
+			int ya = y + yp;
+			for (int x = 0; x < letter.WIDTH; x++) {
+				int xa = x + xp;
+				if (xa < 0 || xa >= width || ya < 0 || ya >= height) continue;
+				pixels[xa + ya * width] = letter.pixels[x + y * letter.WIDTH];
+			}
+		}
+	}
 
 	/**
 	 * Render to the screen
@@ -123,7 +137,26 @@ public class Screen {
 				if (flip == 1 || flip == 3) xs = 31 - x;
 				if (xa < -32 || xa >= width || ya < 0 || ya >= height) break;
 				if (xa < 0) xa = 0;
-				int col = sprite.pixels[xs + ys * sprite.sheet.SPRITESIZE];
+				int col = sprite.pixels[xs + ys * 32];
+				if (col != 0xFFFF00FF) pixels[xa + ya * width] = col;
+			}
+		}
+	}
+
+	public void renderMob(int xp, int yp, Mob mob) {
+		xp -= xOffset;
+		yp -= yOffset;
+		for (int y = 0; y < 32; y++) {
+			int ya = y + yp;
+			int ys = y;
+			for (int x = 0; x < 32; x++) {
+				int xa = x + xp;
+				int xs = x;
+				if (xa < -32 || xa >= width || ya < 0 || ya >= height) break;
+				if (xa < 0) xa = 0;
+				int col = mob.getSprite().pixels[xs + ys * 32];
+				if ((mob instanceof Chaser) && col == 0xFF7F007F) col = 0xFFFFA500;
+				if ((mob instanceof Star) && col == 0xFF7F007F) col = 0xFF00A5ED;
 				if (col != 0xFFFF00FF) pixels[xa + ya * width] = col;
 			}
 		}

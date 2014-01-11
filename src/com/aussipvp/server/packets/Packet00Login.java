@@ -24,7 +24,7 @@ public class Packet00Login extends Packet {
 
     @Override
     public void writeData(Connection client) {
-        client.sendData(getData());
+        //client.sendData(getData());
     }
 
     @Override

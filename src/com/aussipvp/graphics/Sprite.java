@@ -3,6 +3,7 @@ package com.aussipvp.graphics;
 import java.awt.Color;
 
 import com.aussipvp.Game;
+import com.aussipvp.entity.Entity;
 
 public class Sprite {
 
@@ -93,7 +94,31 @@ public class Sprite {
 		this.SIZE = (width == height) ? width : -1;
 		this.width = width;
 		this.height = height;
+		this.pixels = pixels;
 	}
+
+	public Sprite(int w, int h, Color color) {
+		SIZE = -1;
+		if (width >= 0) {
+			if (width < Game.getWindowWidth()) {
+				if (height >= 0) {
+					if (height < Game.getWindowHeight()) {
+						this.width = width;
+						this.height = height;
+						this.pixels = new int[width * height];
+					}
+				}
+			}
+		}
+		int a = color.getAlpha();
+		int r = color.getRed();
+		int g = color.getGreen();
+		int b = color.getBlue();
+		
+		for (int i = 0; i < width * height; i++) {
+			pixels[i] = color.getRGB();
+		}
+    }
 
 	public int getWidth() {
 		return width;
@@ -110,10 +135,14 @@ public class Sprite {
 	}
 
 	private void load() {
-		for (int y = 0; y < this.SIZE; y++) {
-			for (int x = 0; x < this.SIZE; x++) {
+		for (int y = 0; y < this.height; y++) {
+			for (int x = 0; x < this.width; x++) {
 				this.pixels[x + y * this.SIZE] = sheet.pixels[(x + this.x) + (y + this.y) * sheet.SIZE];
 			}
 		}
 	}
+
+	public Game getGameClass() {
+	    return Entity.getGameClass();
+    }
 }

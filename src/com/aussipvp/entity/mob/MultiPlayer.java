@@ -17,7 +17,6 @@ public class MultiPlayer extends Mob {
 		this.x = x;
 		this.y = y;
 		setUsername(userName);
-		game.init(this);
 	}
 
 	public void setUsername(String userName) {

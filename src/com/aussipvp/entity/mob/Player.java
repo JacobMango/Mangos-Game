@@ -1,6 +1,10 @@
 package com.aussipvp.entity.mob;
 
+import java.util.List;
+
 import com.aussipvp.Game;
+import com.aussipvp.Location;
+import com.aussipvp.entity.Entity;
 import com.aussipvp.entity.projectile.PlayerProjectile;
 import com.aussipvp.entity.projectile.Projectile;
 import com.aussipvp.graphics.AnimatedSprite;
@@ -17,59 +21,70 @@ public class Player extends Mob {
 	private Keyboard input;
 	private Sprite sprite;
 	private int anim = 0;
-	private final int MAX_HEALTH = 20;
-	private int health = 20;
+	public final int MAX_HEALTH = 20;
+	public int health = 20;
 	private final int VOID_LOSE_HEALTH_RATE = 20;
 	private int voidLoseHealthRate = 20;
 	private final int NATURALLY_GAIN_HEALTH_RATE = 50;
 	private int naturallyGainHealthRate = 50;
 	private boolean frozen = false;
+	private boolean fjcmbcsa = false;
 
-	private AnimatedSprite test = new AnimatedSprite(SpriteSheet.player_down, 32, 32, 2);
+	private AnimatedSprite down = new AnimatedSprite(SpriteSheet.player_down, 32, 32, 3);
+	private AnimatedSprite up = new AnimatedSprite(SpriteSheet.player_up, 32, 32, 3);
+	private AnimatedSprite left = new AnimatedSprite(SpriteSheet.player_left, 32, 32, 3);
+	private AnimatedSprite right = new AnimatedSprite(SpriteSheet.player_right, 32, 32, 3);
+
+	private AnimatedSprite animSprite = down;
 
 	private int fireRate = 0;
 
-	public Player() {
-		sprite = Sprite.player_forward;
-	}
-
 	public Player(Keyboard input) {
 		this.input = input;
-		// sprite = Sprite.player_forward;
+		animSprite = down;
 	}
 
-	public Player(int x, int y, Keyboard input) {
-		this.x = x;
-		this.y = y;
+	public Player(Location location, Keyboard input) {
+		this.x = location.getX();
+		this.y = location.getY();
 		this.input = input;
-		// sprite = Sprite.player_forward;
+		animSprite = down;
 		fireRate = PlayerProjectile.FIRE_RATE;
 	}
 
-	public void teleport(double x, double y) {
-		this.x = x * 16;
-		this.y = y * 16;
-	}
+	double speed = 1.1;
 
 	public void update() {
+		if (walking) animSprite.update();
+		else animSprite.setFrame(0);
 		if (fireRate > 0) fireRate--;
-
-		int xa = 0, ya = 0;
+		double xa = 0, ya = 0;
 		if (anim < 7500) anim++;
 		else anim = 0;
 
-		if (frozen) return;
-		else {
-			if (input.up) ya--;
-			if (input.down) ya++;
-			if (input.left) xa--;
-			if (input.right) xa++;
-			if (xa != 0 || ya != 0) {
-				move(xa, ya);
-				walking = true;
-			} else {
-				walking = false;
-			}
+		if (input.up) {
+			ya -= speed;
+			animSprite = up;
+		} else if (input.down) {
+			ya += speed;
+			animSprite = down;
+		}
+		if (input.left) {
+			xa -= speed;
+			animSprite = left;
+		} else if (input.right) {
+			xa += speed;
+			animSprite = right;
+		}
+		if (xa != 0 || ya != 0) {
+			move(xa, ya);
+			walking = true;
+		} else {
+			walking = false;
+		}
+
+		if (walking) {
+			y = y + 0.000000001;
 		}
 		clear();
 		updateShooting();
@@ -92,8 +107,7 @@ public class Player extends Mob {
 		} else {
 			voidLoseHealthRate--;
 		}
-		// System.out.println("Health: " + health);
-		test.update();
+		animSprite.update();
 	}
 
 	private void removeHP(int hp) {
@@ -134,8 +148,8 @@ public class Player extends Mob {
 	}
 
 	public void render(Screen screen) {
-		//sprite = test.getSprite();
-		screen.renderMob((int) x - 16, (int) y - 16, sprite.player_forward, 0);
+		sprite = animSprite.getSprite();
+		screen.renderMob((int) x, (int) y, sprite, 0);
 	}
 
 	public boolean getTileUnderPlayer(int x, int y, int tile) {
@@ -147,7 +161,6 @@ public class Player extends Mob {
 	}
 
 	public void freeze() {
-		frozen = true;
+		frozen = !frozen;
 	}
-
 }

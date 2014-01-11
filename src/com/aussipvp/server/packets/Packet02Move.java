@@ -32,7 +32,7 @@ public class Packet02Move extends Packet {
 
 	@Override
 	public void writeData(Connection client) {
-		client.sendData(getData());
+		//client.sendData(getData());
 	}
 
 	public byte[] getData() {

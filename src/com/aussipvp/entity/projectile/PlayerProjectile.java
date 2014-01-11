@@ -9,7 +9,7 @@ public class PlayerProjectile extends Projectile {
 
 	public static final int FIRE_RATE = 10;
 	
-	public PlayerProjectile(int x, int y, double dir) {
+	public PlayerProjectile(double x, double y, double dir) {
 		super(x, y, dir);
 		this.range = random.nextInt((int) 100.0) + 150.0;
 		this.speed = 2;

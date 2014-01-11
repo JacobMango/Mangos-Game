@@ -13,7 +13,7 @@ public class Spawner extends Entity {
 	private Type type;
 	
 	public Spawner(int x, int y, Type type, int amount, Level level) {
-		this.init(level, screen);
+		this.init(level, screen, game);
 		this.x = x;
 		this.y = y;
 		this.type = type;

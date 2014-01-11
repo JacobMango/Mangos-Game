@@ -19,7 +19,7 @@ public class Keyboard implements KeyListener {
 		escape = keys[KeyEvent.VK_ESCAPE];
 		y = keys[KeyEvent.VK_Y];
 
-		if (new Game().DEBUG == true) {
+		if (Game.DEBUG == true) {
 			System.out.println("UP: " + up + ", DOWN: " + down + ", LEFT: " + left + ", RIGHT: " + right);
 		}
 	}
