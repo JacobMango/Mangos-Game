@@ -99,7 +99,8 @@ public class GuiLauncher extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		GuiLauncher frame = new GuiLauncher(args);
-		frame.setVisible(true);
+		//GuiLauncher frame = new GuiLauncher(args);
+		//frame.setVisible(true);
+		Launcher.start();
 	}
 }
