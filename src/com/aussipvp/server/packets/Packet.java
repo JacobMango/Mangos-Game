@@ -5,7 +5,7 @@ import com.aussipvp.server.Connection;
 public abstract class Packet {
 
 	public static enum PacketTypes {
-		INVALID(-1), LOGIN(00), DISCONNECT(01), MOVE(02);
+		INVALID(-1), LOGIN(00), DISCONNECT(01), MOVE(02), SPAWNENTIY(03);
 
 		private int packetId;
 
@@ -26,12 +26,12 @@ public abstract class Packet {
 
 	public abstract void writeData(Connection client);
 
+	public abstract byte[] getData();
+	
 	public String readData(byte[] data) {
 		String message = new String(data).trim();
 		return message.substring(2);
 	}
-
-	public abstract byte[] getData();
 
 	public static PacketTypes lookupPacket(String packetId) {
 		try {
@@ -43,7 +43,8 @@ public abstract class Packet {
 
 	public static PacketTypes lookupPacket(int id) {
 		for (PacketTypes p : PacketTypes.values()) {
-			if (p.getId() == id) { return p; }
+			if (p.getId() == id) return p;
+			else return PacketTypes.INVALID;
 		}
 		return PacketTypes.INVALID;
 	}

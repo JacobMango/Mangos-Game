@@ -10,9 +10,8 @@ public class Packet00Login extends Packet {
     public Packet00Login(byte[] data) {
         super(00);
         String[] dataArray = readData(data).split(",");
-        this.username = dataArray[0];
-        this.x = Integer.parseInt(dataArray[1]);
-        this.y = Integer.parseInt(dataArray[2]);
+        this.x = Integer.parseInt(dataArray[0]);
+        this.y = Integer.parseInt(dataArray[1]);
     }
 
     public Packet00Login(String username, int x, int y) {
@@ -22,9 +21,8 @@ public class Packet00Login extends Packet {
         this.y = y;
     }
 
-    @Override
     public void writeData(Connection client) {
-        //client.sendData(getData());
+        client.sendData(getData());
     }
 
     @Override

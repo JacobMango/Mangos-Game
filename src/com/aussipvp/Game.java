@@ -112,6 +112,14 @@ public class Game extends Canvas implements Runnable {
 	public Game() {
 		Dimension size = new Dimension(getWindowWidth(), getWindowHeight());
 		this.setPreferredSize(size);
+		String a = "localhost";
+		int p = 3092;
+		connection = new Connection(userName, a, p);
+		boolean connection = false;
+		connection = this.connection.openConnection(a + ":" + p);
+		if (connection == false) {
+			System.out.println("Connection failed!");
+		}
 		screen = new Screen(width, height);
 		key = new Keyboard();
 		frame = new JFrame();
@@ -209,6 +217,7 @@ public class Game extends Canvas implements Runnable {
 				pauseMenu = true;
 			}
 		}
+		connection.update();
 	}
 
 	private int time = 0;
