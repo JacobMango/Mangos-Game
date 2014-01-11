@@ -6,6 +6,10 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+
+import com.aussipvp.entity.mob.MultiPlayer;
+import com.aussipvp.level.Level;
 
 public class Connection {
 
@@ -13,22 +17,24 @@ public class Connection {
 
 	private DatagramSocket socket;
 
-	private String name, address;
+	private String address;
 	private int port;
 	private InetAddress ip;
 	private Thread send;
 	private int ID = -1;
+	private Level level;
 
-	public Connection(String name, String address, int port) {
-		this.name = name;
+	public Connection(String address, int port, Level level) {
+		this.level = level;
 		this.address = address;
 		this.port = port;
 	}
 
-	public boolean openConnection(String address) {
+	public boolean openConnection() {
 		try {
 			socket = new DatagramSocket();
 			ip = InetAddress.getByName(address);
+			return true;
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			return false;
@@ -36,7 +42,6 @@ public class Connection {
 			e.printStackTrace();
 			return false;
 		}
-		return true;
 	}
 
 	public String receiveData() {
@@ -84,7 +89,7 @@ public class Connection {
 	}
 
 	public void update() {
-		
-    }
+		//level.movePlayers();
+	}
 
 }

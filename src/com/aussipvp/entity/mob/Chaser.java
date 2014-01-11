@@ -28,7 +28,7 @@ public class Chaser extends Mob {
 		xa = 0;
 		ya = 0;
 
-		List<Player> players = level.getPlayers(this, 2 * 16);
+		List<MultiPlayer> players = level.getPlayers(this, 2 * 16);
 		if (players.size() > 0) {
 			Player player = players.get(0);
 			if (x < player.getX()) xa++;

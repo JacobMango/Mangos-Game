@@ -15,6 +15,7 @@ import com.aussipvp.input.Keyboard;
 import com.aussipvp.input.Mouse;
 import com.aussipvp.level.Level;
 import com.aussipvp.level.tile.Tile;
+import com.aussipvp.util.Vector2i;
 
 public class Player extends Mob {
 
@@ -27,7 +28,7 @@ public class Player extends Mob {
 	private int voidLoseHealthRate = 20;
 	private final int NATURALLY_GAIN_HEALTH_RATE = 50;
 	private int naturallyGainHealthRate = 50;
-	private boolean frozen = false;
+	public boolean frozen = false;
 	private boolean fjcmbcsa = false;
 
 	private AnimatedSprite down = new AnimatedSprite(SpriteSheet.player_down, 32, 32, 3);
@@ -42,6 +43,13 @@ public class Player extends Mob {
 	public Player(Keyboard input) {
 		this.input = input;
 		animSprite = down;
+	}
+
+	public Player(double x, double y) {
+		this.x = x;
+		this.y = y;
+		animSprite = down;
+		fireRate = PlayerProjectile.FIRE_RATE;
 	}
 
 	public Player(Location location, Keyboard input) {
@@ -77,15 +85,16 @@ public class Player extends Mob {
 			animSprite = right;
 		}
 		if (xa != 0 || ya != 0) {
-			move(xa, ya);
-			walking = true;
+			if (level.movePlayer()) {
+				move(xa, ya);
+				walking = true;
+			} else {
+				walking = false;
+			}
 		} else {
 			walking = false;
 		}
 
-		if (walking) {
-			y = y + 0.000000001;
-		}
 		clear();
 		updateShooting();
 
@@ -162,5 +171,13 @@ public class Player extends Mob {
 
 	public void freeze() {
 		frozen = !frozen;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public void setY(double y) {
+		this.y = y;
 	}
 }

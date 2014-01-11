@@ -3,16 +3,20 @@ package com.aussipvp.level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import com.aussipvp.Game;
 import com.aussipvp.entity.Entity;
+import com.aussipvp.entity.mob.Mob;
+import com.aussipvp.entity.mob.Mob.Direction;
 import com.aussipvp.entity.mob.MultiPlayer;
 import com.aussipvp.entity.mob.Player;
 import com.aussipvp.entity.particles.Particle;
 import com.aussipvp.entity.projectile.Projectile;
 import com.aussipvp.graphics.Screen;
 import com.aussipvp.level.tile.Tile;
+import com.aussipvp.server.Connection;
 import com.aussipvp.util.Vector2i;
 
 public class Level {
@@ -29,6 +33,8 @@ public class Level {
 	private static List<Particle> particles = new ArrayList<Particle>();
 	private static List<MultiPlayer> multiplayer = new ArrayList<MultiPlayer>();
 
+	public static HashMap<Integer, MultiPlayer> players = new HashMap<Integer, MultiPlayer>();
+
 	private Comparator<Node> nodeSorter = new Comparator<Node>() {
 		public int compare(Node n0, Node n1) {
 			if (n1.fCost < n0.fCost) return +1;
@@ -36,8 +42,6 @@ public class Level {
 			return 0;
 		}
 	};
-
-	private static List<Player> players = new ArrayList<Player>();
 
 	public static Level spawn = new SpawnLevel("/levels/testspawn.png");
 
@@ -120,18 +124,12 @@ public class Level {
 		}
 	}
 
-	public void addPlayer(MultiPlayer e) {
-		multiplayer.add(e);
-	}
-
 	public void add(Entity e) {
 		e.init(this, screen, game);
 		if (e instanceof Particle) {
 			particles.add((Particle) e);
 		} else if (e instanceof Projectile) {
 			projectiles.add((Projectile) e);
-		} else if (e instanceof Player) {
-			players.add((Player) e);
 		} else {
 			entities.add(e);
 		}
@@ -186,15 +184,16 @@ public class Level {
 		return height;
 	}
 
-	public Player getPlayerAt(int index) {
+	public MultiPlayer getPlayerAt(int index) {
 		return players.get(index);
 	}
 
-	public List<Player> getPlayers() {
-		return players;
+	@SuppressWarnings("unchecked")
+	public List<MultiPlayer> getPlayers() {
+		return (List<MultiPlayer>) players;
 	}
 
-	public Player getClientPlayer() {
+	public MultiPlayer getClientPlayer() {
 		return players.get(0);
 	}
 
@@ -272,12 +271,12 @@ public class Level {
 		return result;
 	}
 
-	public List<Player> getPlayers(Entity e, int radius) {
-		List<Player> result = new ArrayList<Player>();
+	public List<MultiPlayer> getPlayers(Entity e, int radius) {
+		List<MultiPlayer> result = new ArrayList<MultiPlayer>();
 		int ex = (int) e.getX();
 		int ey = (int) e.getY();
 		for (int i = 0; i < players.size(); i++) {
-			Player p = players.get(i);
+			MultiPlayer p = players.get(i);
 			int x = (int) p.getX();
 			int y = (int) p.getY();
 
@@ -289,13 +288,75 @@ public class Level {
 		return result;
 	}
 
-	/*
-	 * public MultiPlayer getPlayer(String userName) { for (int i = 0; i <
-	 * multiplayer.size(); i++) { if
-	 * (multiplayer.get(i).getUsername().equals(userName)) { return
-	 * multiplayer.get(i); } } return null; }
-	 * 
-	 * public void movePlayer(String userName, int x, int y, boolean moving, int
-	 * dir) { getPlayer(userName).setLocation(x, y, moving, dir); }
-	 */
+	public boolean movePlayer() {
+		Connection c = game.connection;
+		double x = players.get(game.id).getX();
+		double y = players.get(game.id).getY();
+		boolean walking = players.get(game.id).walking;
+		Mob.Direction d = players.get(game.id).dir;
+		boolean frozen = players.get(game.id).frozen;
+		int dir = 0;
+		if (d == Direction.UP) dir = 0;
+		if (d == Direction.LEFT) dir = 1;
+		if (d == Direction.DOWN) dir = 2;
+		if (d == Direction.RIGHT) dir = 3;
+		String dataString = "3" + game.id + "," + x + "," + y + "," + walking + "," + dir + "," + frozen;
+		byte[] data = dataString.getBytes();
+		c.sendData(data);
+		if (c.receiveData().startsWith("3")) {
+			String b = c.receiveData();
+			b.substring(1);
+			boolean frezen = Boolean.parseBoolean(b.split(",")[5]);
+			if (players.get(game.id).frozen = frezen) {
+				players.get(game.id).setX(x);
+				players.get(game.id).setY(y);
+				players.get(game.id).walking = walking;
+				players.get(game.id).dir = d;
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
+
+	public void movePlayers() {
+		Connection c = game.connection;
+		if (c.receiveData().startsWith("3")) {
+			String b = c.receiveData();
+			b.substring(1);
+			int id = Integer.parseInt(b.split(",")[0]);
+			double x = Integer.parseInt(b.split(",")[1]);
+			double y = Integer.parseInt(b.split(",")[2]);
+			boolean moving = Boolean.parseBoolean(b.split(",")[3]);
+			int d = Integer.parseInt(b.split(",")[4]);
+			boolean frozen = Boolean.parseBoolean(b.split(",")[5]);
+			Mob.Direction dir = null;
+			if (d == 0) dir = Direction.UP;
+			if (d == 1) dir = Direction.LEFT;
+			if (d == 2) dir = Direction.DOWN;
+			if (d == 3) dir = Direction.RIGHT;
+			if (players.get(id).frozen = frozen) {
+				players.get(id).setX(x);
+				players.get(id).setY(y);
+				players.get(id).walking = moving;
+				players.get(id).dir = dir;
+			}
+		}
+	}
+
+	public void loginPlayer(Player p, int id, double x, double y, int d) {
+		players.put(id, (MultiPlayer) p);
+		Mob.Direction dir = Direction.DOWN;
+		if (d == 0) dir = Direction.UP;
+		if (d == 1) dir = Direction.LEFT;
+		if (d == 2) dir = Direction.DOWN;
+		if (d == 3) dir = Direction.RIGHT;
+		players.get(id).setX(x);
+		players.get(id).setY(y);
+		players.get(id).dir = dir;
+	}
+
+	public void removePlayer(int id) {
+		players.remove(id);
+	}
 }

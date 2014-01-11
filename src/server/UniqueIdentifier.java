@@ -6,24 +6,17 @@ import java.util.List;
 
 public class UniqueIdentifier {
 
-	private static List<Integer> ids = new ArrayList<Integer>();
-	private static final int RANGE = 10000;
+	private static int id = 0;
+	private static final int MAX_ID = 10;
 
-	private static int index = 0;
-
-	static {
-		for (int i = 0; i < RANGE; i++) {
-			ids.add(i);
-		}
-		Collections.shuffle(ids);
-	}
-
-	private UniqueIdentifier() {
-	}
+	private UniqueIdentifier() {}
 
 	public static int getIdentifier() {
-		if (index > ids.size() - 1) index = 0;
-		return ids.get(index++);
+		if (!(id == MAX_ID)) {
+			return id++;
+		} else {
+			return -1;
+		}
 	}
 
 }

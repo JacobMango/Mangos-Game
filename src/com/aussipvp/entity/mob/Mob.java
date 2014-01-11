@@ -13,13 +13,13 @@ import com.aussipvp.level.Level;
 public abstract class Mob extends Entity {
 
 	protected boolean moving = false;
-	protected boolean walking = false;
+	public boolean walking = false;
 
-	protected enum Direction {
+	public enum Direction {
 		UP, DOWN, LEFT, RIGHT
 	}
 
-	protected Direction dir;
+	public Direction dir;
 
 	public void move(double xa, double ya) {
 		if (xa != 0 && ya != 0) {

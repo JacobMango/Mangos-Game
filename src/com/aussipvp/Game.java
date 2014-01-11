@@ -66,11 +66,13 @@ public class Game extends Canvas implements Runnable {
 	private Font font;
 	private FontRenderer fr;
 	private Chat chat;
-	private Connection connection;
+	public Connection connection;
 	private boolean running = false;
 	public boolean f3menu = false;
 	public static boolean dead = false;
 	public static double angle;
+
+	public int id = 0;
 
 	public String userName = "Jacob";
 
@@ -114,26 +116,24 @@ public class Game extends Canvas implements Runnable {
 		this.setPreferredSize(size);
 		String a = "localhost";
 		int p = 3092;
-		connection = new Connection(userName, a, p);
-		boolean connection = false;
-		connection = this.connection.openConnection(a + ":" + p);
-		if (connection == false) {
-			System.out.println("Connection failed!");
-		}
 		screen = new Screen(width, height);
 		key = new Keyboard();
 		frame = new JFrame();
 		level = level.spawn;
 		level.init(screen, this);
-		level.add(player = new Player(new Location(4, 3, "spawn"), key));
+		player = new Player(new Location(4, 3, "spawn"), key);
 		player.init(level, screen, this);
+		connection = new Connection(a, p, level);
 		font = new Font(screen);
 		fr = new FontRenderer(screen);
 		this.addKeyListener(key);
 		Mouse mouse = new Mouse();
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
-
+		boolean connect = connection.openConnection();
+		if (!connect) {
+			System.out.println("Connection failed!");
+		}
 		/*
 		 * new GuiInit().init(this); menu = new Menu(); ingame = new InGame();
 		 */
@@ -198,9 +198,22 @@ public class Game extends Canvas implements Runnable {
 	/**
 	 * Update method
 	 */
+	boolean joined = false;
+
 	public void update() {
+		if (game) {
+			if (!joined) {
+				if (connection.receiveData().equals("0A")) {
+					String s = connection.receiveData();
+					s.substring(2);
+					id = Integer.parseInt(s);
+					level.loginPlayer(player, id, 5, 5, 2);
+				}
+			}
+			connection.update();
+			level.update();
+		}
 		key.update();
-		level.update();
 		screen = new Screen(width, height);
 		if (key.f3 == true) {
 			if (f3menu == true) {
@@ -217,7 +230,6 @@ public class Game extends Canvas implements Runnable {
 				pauseMenu = true;
 			}
 		}
-		connection.update();
 	}
 
 	private int time = 0;
@@ -362,8 +374,6 @@ public class Game extends Canvas implements Runnable {
 			int xScroll = (int) (player.getX() - screen.width / 2) + 16;
 			int yScroll = (int) (player.getY() - screen.height / 2) + 16;
 
-
-
 			if (xScroll >= 210) {
 				xScroll = 210;
 			} else if (xScroll <= 0) {
@@ -376,10 +386,10 @@ public class Game extends Canvas implements Runnable {
 			}
 			level.render(xScroll, yScroll, screen);
 
-			font.render("TEST", 50, 50);
-			
-			screen.renderSprite(10, 10, new Sprite(8, 0, 0, SpriteSheet.font), false);
-			
+			// font.render("TEST", 50, 50);
+			// screen.renderSprite(10, 10, new Sprite(8, 0, 0,
+			// SpriteSheet.font), false);
+
 			Sprite sprite = null;
 			Sprite noh = new Sprite(200, 10, 0xFF808080);
 			if (player.getHealth() <= 0) {
