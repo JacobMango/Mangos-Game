@@ -111,12 +111,12 @@ public class Server implements Runnable {
 	private void process(DatagramPacket packet) {
 		String string = new String(packet.getData());
 		if (raw) System.out.println(string);
-		if (string.startsWith("/c/")) {
+		if (string.startsWith("0")) {
 			int id = UniqueIdentifier.getIdentifier();
 			System.out.println("Identifier: " + id);
 			clients.add(new ServerClient(id, packet.getAddress(), packet.getPort()));
 			System.out.println(string.substring(3, string.length()));
-			String ID = "/c/" + id;
+			String ID = "0A" + id;
 			send(ID.getBytes(), packet.getAddress(), packet.getPort());
 		} else if (string.startsWith("/d/")) {
 			String id = string.split("/d/|/e/")[1];

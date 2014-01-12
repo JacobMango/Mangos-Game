@@ -36,8 +36,8 @@ public class SpawnLevel extends Level {
 		/*for (int i = 0; i < 10; i++) {
 			add(new BasicMob(random.nextInt(20) + 1, random.nextInt(20) + 1));
 		}*/
-		//add(new Chaser(10, 10));
-		//add(new Star(25, 25));
+		add(new Chaser(10, 10));
+		add(new Star(25, 25));
 	}
 
 	protected void generateLevel() {

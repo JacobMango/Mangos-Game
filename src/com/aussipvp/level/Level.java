@@ -31,9 +31,10 @@ public class Level {
 	private static List<Entity> entities = new ArrayList<Entity>();
 	private static List<Projectile> projectiles = new ArrayList<Projectile>();
 	private static List<Particle> particles = new ArrayList<Particle>();
-	private static List<MultiPlayer> multiplayer = new ArrayList<MultiPlayer>();
 
-	public static HashMap<Integer, MultiPlayer> players = new HashMap<Integer, MultiPlayer>();
+	public static List<Player> players = new ArrayList<Player>();
+	
+	//public static HashMap<Integer, MultiPlayer> players = new HashMap<Integer, MultiPlayer>();
 
 	private Comparator<Node> nodeSorter = new Comparator<Node>() {
 		public int compare(Node n0, Node n1) {
@@ -130,6 +131,8 @@ public class Level {
 			particles.add((Particle) e);
 		} else if (e instanceof Projectile) {
 			projectiles.add((Projectile) e);
+		} else if (e instanceof Player) {
+			players.add((Player) e);
 		} else {
 			entities.add(e);
 		}
@@ -184,16 +187,15 @@ public class Level {
 		return height;
 	}
 
-	public MultiPlayer getPlayerAt(int index) {
+	public Player getPlayerAt(int index) {
 		return players.get(index);
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<MultiPlayer> getPlayers() {
-		return (List<MultiPlayer>) players;
+	public List<Player> getPlayers() {
+		return players;
 	}
 
-	public MultiPlayer getClientPlayer() {
+	public Player getClientPlayer() {
 		return players.get(0);
 	}
 
@@ -271,12 +273,12 @@ public class Level {
 		return result;
 	}
 
-	public List<MultiPlayer> getPlayers(Entity e, int radius) {
-		List<MultiPlayer> result = new ArrayList<MultiPlayer>();
+	public List<Player> getPlayers(Entity e, int radius) {
+		List<Player> result = new ArrayList<Player>();
 		int ex = (int) e.getX();
 		int ey = (int) e.getY();
 		for (int i = 0; i < players.size(); i++) {
-			MultiPlayer p = players.get(i);
+			Player p = players.get(i);
 			int x = (int) p.getX();
 			int y = (int) p.getY();
 
@@ -288,7 +290,7 @@ public class Level {
 		return result;
 	}
 
-	public boolean movePlayer() {
+	/*public boolean movePlayer() {
 		Connection c = game.connection;
 		double x = players.get(game.id).getX();
 		double y = players.get(game.id).getY();
@@ -344,17 +346,30 @@ public class Level {
 		}
 	}
 
-	public void loginPlayer(Player p, int id, double x, double y, int d) {
-		players.put(id, (MultiPlayer) p);
-		Mob.Direction dir = Direction.DOWN;
-		if (d == 0) dir = Direction.UP;
-		if (d == 1) dir = Direction.LEFT;
-		if (d == 2) dir = Direction.DOWN;
-		if (d == 3) dir = Direction.RIGHT;
-		players.get(id).setX(x);
-		players.get(id).setY(y);
-		players.get(id).dir = dir;
-	}
+	public int loginPlayer(Player p) {
+		Connection c = game.connection;
+		String ss = "0" + p;
+		c.sendData(ss.getBytes());
+		if (c.receiveData().startsWith("0A")) {
+			String s = c.receiveData();
+			s.substring(2);
+			int id = Integer.parseInt(s.split(",")[0]);
+			int x = Integer.parseInt(s.split(",")[1]);
+			int y = Integer.parseInt(s.split(",")[2]);
+			int d = Integer.parseInt(s.split(",")[3]);
+			players.put(id, (MultiPlayer) p);
+			Mob.Direction dir = Direction.DOWN;
+			if (d == 0) dir = Direction.UP;
+			if (d == 1) dir = Direction.LEFT;
+			if (d == 2) dir = Direction.DOWN;
+			if (d == 3) dir = Direction.RIGHT;
+			players.get(id).setX(x);
+			players.get(id).setY(y);
+			players.get(id).dir = dir;
+			return id;
+		}
+		return -1;
+	}*/
 
 	public void removePlayer(int id) {
 		players.remove(id);

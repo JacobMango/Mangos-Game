@@ -66,7 +66,7 @@ public class Game extends Canvas implements Runnable {
 	private Font font;
 	private FontRenderer fr;
 	private Chat chat;
-	public Connection connection;
+	//public Connection connection;
 	private boolean running = false;
 	public boolean f3menu = false;
 	public static boolean dead = false;
@@ -121,19 +121,19 @@ public class Game extends Canvas implements Runnable {
 		frame = new JFrame();
 		level = level.spawn;
 		level.init(screen, this);
-		player = new Player(new Location(4, 3, "spawn"), key);
+		level.add(player = new Player(new Location(4, 3, "spawn"), key));
 		player.init(level, screen, this);
-		connection = new Connection(a, p, level);
+		//connection = new Connection(a, p, level);
 		font = new Font(screen);
 		fr = new FontRenderer(screen);
 		this.addKeyListener(key);
 		Mouse mouse = new Mouse();
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
-		boolean connect = connection.openConnection();
+		/*boolean connect = connection.openConnection();
 		if (!connect) {
 			System.out.println("Connection failed!");
-		}
+		}*/
 		/*
 		 * new GuiInit().init(this); menu = new Menu(); ingame = new InGame();
 		 */
@@ -201,16 +201,11 @@ public class Game extends Canvas implements Runnable {
 	boolean joined = false;
 
 	public void update() {
-		if (game) {
-			if (!joined) {
-				if (connection.receiveData().equals("0A")) {
-					String s = connection.receiveData();
-					s.substring(2);
-					id = Integer.parseInt(s);
-					level.loginPlayer(player, id, 5, 5, 2);
-				}
-			}
-			connection.update();
+		if (game || pauseMenu || dead) {
+			/*if (!joined) {
+				id = level.loginPlayer(player);
+			}*/
+			//connection.update();
 			level.update();
 		}
 		key.update();

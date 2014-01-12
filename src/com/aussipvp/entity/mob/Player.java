@@ -85,12 +85,8 @@ public class Player extends Mob {
 			animSprite = right;
 		}
 		if (xa != 0 || ya != 0) {
-			if (level.movePlayer()) {
-				move(xa, ya);
-				walking = true;
-			} else {
-				walking = false;
-			}
+			move(xa, ya);
+			walking = true;
 		} else {
 			walking = false;
 		}

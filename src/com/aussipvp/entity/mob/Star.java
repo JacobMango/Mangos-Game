@@ -32,8 +32,8 @@ public class Star extends Mob {
 	private void move() {
 		xa = 0;
 		ya = 0;
-		int px = (int) level.getPlayerAt(0).getX();
-		int py = (int) level.getPlayerAt(0).getY();
+		int px = (int) level.getPlayers().get(0).getX();
+		int py = (int) level.getPlayers().get(0).getY();
 		Vector2i start = new Vector2i((int) getX() >> 4, (int) getY() >> 4);
 		Vector2i destination = new Vector2i((int) px >> 4, (int) py >> 4);
 		timeFinder++;

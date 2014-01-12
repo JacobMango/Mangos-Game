@@ -24,6 +24,8 @@ public class MultiPlayer extends Player {
 
 	public double x = 0;
 	public double y = 0;
+	public boolean walking = false;
+	public boolean frozen = false;
 
 	public MultiPlayer(int x, int y) {
 		super(x, y);
