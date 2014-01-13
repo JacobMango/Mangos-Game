@@ -18,6 +18,7 @@ import com.aussipvp.entity.mob.MultiPlayer;
 import com.aussipvp.entity.mob.Player;
 import com.aussipvp.graphics.gui.Chat;
 import com.aussipvp.graphics.text.Font;
+import com.aussipvp.graphics.text.Font.Effects;
 import com.aussipvp.graphics.text.FontRenderer;
 import com.aussipvp.graphics.Colours;
 import com.aussipvp.graphics.Screen;
@@ -45,7 +46,7 @@ public class Game extends Canvas implements Runnable {
 	 * Screen resolution.
 	 */
 	public static int width = 300;
-	private static int height = width / 16 * 9;
+	public static int height = width / 16 * 9;
 	private static int scale = 3;
 
 	public static int w = width * scale;
@@ -64,11 +65,8 @@ public class Game extends Canvas implements Runnable {
 	private Menu menu;
 	private InGame ingame;
 	private Font font;
-	private FontRenderer fr;
 	private Chat chat;
-	//public Connection connection;
 	private boolean running = false;
-	public boolean f3menu = false;
 	public static boolean dead = false;
 	public static double angle;
 
@@ -87,9 +85,10 @@ public class Game extends Canvas implements Runnable {
 
 	public static boolean DEBUG = false;
 
-	public static boolean menuEnable = true;
+	public static boolean f3menu = false;
+	public static boolean menuEnable = false;
 	public static boolean loading = false;
-	public static boolean game = false;
+	public static boolean game = true;
 	public static boolean pauseMenu = false;
 
 	/**
@@ -97,6 +96,9 @@ public class Game extends Canvas implements Runnable {
 	 */
 	public BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	public int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+
+	private BufferedImage noScaleImage = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+	private int[] textPixels = ((DataBufferInt) noScaleImage.getRaster().getDataBuffer()).getData();
 
 	public Graphics2D g;
 
@@ -114,29 +116,19 @@ public class Game extends Canvas implements Runnable {
 	public Game() {
 		Dimension size = new Dimension(getWindowWidth(), getWindowHeight());
 		this.setPreferredSize(size);
-		String a = "localhost";
-		int p = 3092;
-		screen = new Screen(width, height);
+		SpriteSheet.update();
+		screen = new Screen(width, height, this);
+		font = new Font(w, h);
 		key = new Keyboard();
 		frame = new JFrame();
 		level = level.spawn;
 		level.init(screen, this);
-		level.add(player = new Player(new Location(4, 3, "spawn"), key));
+		level.add(player = new Player(new Location(4, 3, level.spawn), key));
 		player.init(level, screen, this);
-		//connection = new Connection(a, p, level);
-		font = new Font(screen);
-		fr = new FontRenderer(screen);
 		this.addKeyListener(key);
 		Mouse mouse = new Mouse();
 		this.addMouseListener(mouse);
 		this.addMouseMotionListener(mouse);
-		/*boolean connect = connection.openConnection();
-		if (!connect) {
-			System.out.println("Connection failed!");
-		}*/
-		/*
-		 * new GuiInit().init(this); menu = new Menu(); ingame = new InGame();
-		 */
 	}
 
 	/**
@@ -201,29 +193,16 @@ public class Game extends Canvas implements Runnable {
 	boolean joined = false;
 
 	public void update() {
-		if (game || pauseMenu || dead) {
-			/*if (!joined) {
-				id = level.loginPlayer(player);
-			}*/
-			//connection.update();
-			level.update();
-		}
+		SpriteSheet.update();
+		screen = new Screen(width, height, this);
+		font = new Font(w, h);
 		key.update();
-		screen = new Screen(width, height);
-		if (key.f3 == true) {
-			if (f3menu == true) {
-				f3menu = false;
-			} else {
-				f3menu = true;
-			}
-		}
-		if (key.escape) {
-			if (pauseMenu == true) {
-				pauseMenu = false;
-				game = true;
-			} else {
-				pauseMenu = true;
-			}
+		if (game || pauseMenu || dead) {
+			/*
+			 * if (!joined) { id = level.loginPlayer(player); }
+			 */
+			// connection.update();
+			level.update();
 		}
 	}
 
@@ -240,7 +219,6 @@ public class Game extends Canvas implements Runnable {
 			return;
 		}
 		Graphics2D g = (Graphics2D) bs.getDrawGraphics();
-		this.g = g;
 
 		if (menuEnable) {
 			Sprite s = new Sprite(100, 35, 0xFF002241);
@@ -252,7 +230,7 @@ public class Game extends Canvas implements Runnable {
 			int y = 90;
 
 			screen.renderSprite(x, y, s, false);
-			if (Mouse.getX() > x && Mouse.getX() < 400 * scale && Mouse.getY() > y && Mouse.getY() < 175 * scale) {
+			if (Mouse.getX() > x && Mouse.getX() < 400 * scale && Mouse.getY() > y && Mouse.getY() < 175) {
 				screen.renderSprite(x, y, s, false);
 				if (Mouse.getButton() == 1) {
 					screen.renderSprite(x, y, s, false);
@@ -263,6 +241,8 @@ public class Game extends Canvas implements Runnable {
 			} else {
 				screen.renderSprite(x, y, s, false);
 			}
+			String ctp = "Click to Play";
+			font.render(ctp, 50, 50, 0xFFFFFFFF, Effects.ITALICS);
 
 			for (int i = 0; i < pixels.length; i++) {
 				pixels[i] = screen.pixels[i];
@@ -276,9 +256,7 @@ public class Game extends Canvas implements Runnable {
 				pixels[i] = screen.pixels[i];
 			}
 			g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
-			g.setColor(new Color(0xFF993311));
-			// g.setFont(new Font("Calibra", 1, 50));
-			g.drawString("Loading...", 325, 200);
+
 			new Timer().schedule(new TimerTask() {
 
 				@Override
@@ -363,12 +341,9 @@ public class Game extends Canvas implements Runnable {
 				pauseMenu = false;
 			}
 		} else if (game) {
-			// ingame.render();
-			Graphics2D graphics2d = g;
 			screen.clear();
 			int xScroll = (int) (player.getX() - screen.width / 2) + 16;
 			int yScroll = (int) (player.getY() - screen.height / 2) + 16;
-
 			if (xScroll >= 210) {
 				xScroll = 210;
 			} else if (xScroll <= 0) {
@@ -380,11 +355,7 @@ public class Game extends Canvas implements Runnable {
 				yScroll = 0;
 			}
 			level.render(xScroll, yScroll, screen);
-
-			// font.render("TEST", 50, 50);
-			// screen.renderSprite(10, 10, new Sprite(8, 0, 0,
-			// SpriteSheet.font), false);
-
+			
 			Sprite sprite = null;
 			Sprite noh = new Sprite(200, 10, 0xFF808080);
 			if (player.getHealth() <= 0) {
@@ -433,22 +404,29 @@ public class Game extends Canvas implements Runnable {
 			screen.renderSprite((width - 200) / 2, 0, noh, false);
 			screen.renderSprite((width - 200) / 2, 0, sprite, false);
 
+			String c = ("X: " + ((double) player.getX() / 16));
+			String d = ("Y: " + ((double) player.getY() / 16));
+			String e = (String.format("Angle: %.2f", new Object[] { Double.valueOf(angle) }));
+			String f = ("Projectiles: " + Level.getProjectiles().size());
+			String h = ("Button: " + Mouse.getButton());
+
 			for (int i = 0; i < pixels.length; i++) {
 				pixels[i] = screen.pixels[i];
 			}
+			g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 
-			graphics2d.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 			if (f3menu) {
-				int sysy = 15;
-				graphics2d.setColor(Color.WHITE);
-				// graphics2d.setFont(new Font("Calibra", 0, 15));
-				graphics2d.drawString("FPS: " + fps, 5, sysy);
-				graphics2d.drawString("UPS: " + ups, 5, sysy = sysy + 15);
-				graphics2d.drawString("X: " + ((double) player.getX() / 16), 5, sysy = sysy + 15);
-				graphics2d.drawString("Y: " + ((double) player.getY() / 16), 5, sysy = sysy + 15);
-				graphics2d.drawString(String.format("Angle: %.2f", new Object[] { Double.valueOf(angle) }), 5, sysy = sysy + 15);
-				graphics2d.drawString("Projectiles: " + Level.getProjectiles().size(), 5, sysy = sysy + 15);
-				graphics2d.drawString("Button: " + Mouse.getButton(), 5, sysy = sysy + 15);
+				int s = 15;
+				int i = 1;
+				font.clear();
+				font.render("Mangos-Game", 10, s * i, 0xFFFF0000, Effects.NONE);
+				font.render("FPS: " + fps + " (UPS: " + ups + ")", 90, s * i++, 0, Effects.NONE);
+				font.render(c, 10, s * i++, 0, Effects.NONE);
+				font.render(d, 10, s * i++, 0, Effects.NONE);
+				font.render(e, 10, s * i++, 0, Effects.NONE);
+				font.render(f, 10, s * i++, 0, Effects.NONE);
+				font.render(h, 10, s * i++, 0, Effects.NONE);
+				font.render(g, textPixels, noScaleImage, this);
 			}
 		}
 		g.dispose();

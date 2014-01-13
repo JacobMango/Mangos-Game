@@ -147,7 +147,7 @@ public class Player extends Mob {
 			double dx = Mouse.getX() - Game.getWindowWidth() / 2;
 			double dy = Mouse.getY() - Game.getWindowHeight() / 2;
 			double dir = Math.atan2(dy, dx);
-			shoot((int) x, (int) y, dir);
+			shoot((int) x + 16, (int) y + 16, dir);
 			fireRate = PlayerProjectile.FIRE_RATE;
 		}
 	}

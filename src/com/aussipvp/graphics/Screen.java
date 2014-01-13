@@ -2,6 +2,7 @@ package com.aussipvp.graphics;
 
 import java.util.Random;
 
+import com.aussipvp.Game;
 import com.aussipvp.entity.mob.Chaser;
 import com.aussipvp.entity.mob.Mob;
 import com.aussipvp.entity.mob.Star;
@@ -15,7 +16,7 @@ public class Screen {
 	 */
 	public int width, height;
 	public int[] pixels;
-	public final int MAP_SIZE = 64;
+	public final int MAP_SIZE = 128;
 	public final int MAP_SIZE_MASK = MAP_SIZE - 1;
 
 	public int xOffset, yOffset;
@@ -23,6 +24,7 @@ public class Screen {
 	public int[] tiles = new int[MAP_SIZE * MAP_SIZE];
 
 	private Random r = new Random();
+	public Game game;
 
 	/**
 	 * Constructor
@@ -30,7 +32,8 @@ public class Screen {
 	 * @param width
 	 * @param height
 	 */
-	public Screen(int width, int height) {
+	public Screen(int width, int height, Game game) {
+		if (game != null) this.game = game;
 		this.width = width;
 		this.height = height;
 		pixels = new int[width * height];
@@ -78,20 +81,8 @@ public class Screen {
 				pixels[xa + ya * width] = sheet.pixels[x + y * sheet.WIDTH];
 			}
 		}
-
 	}
 	
-	public void renderFont(SpriteSheet letter, int xp, int yp) {
-		for (int y = 0; y < letter.HEIGHT; y++) {
-			int ya = y + yp;
-			for (int x = 0; x < letter.WIDTH; x++) {
-				int xa = x + xp;
-				if (xa < 0 || xa >= width || ya < 0 || ya >= height) continue;
-				pixels[xa + ya * width] = letter.pixels[x + y * letter.WIDTH];
-			}
-		}
-	}
-
 	/**
 	 * Render to the screen
 	 */
